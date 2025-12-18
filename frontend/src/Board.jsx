@@ -5,8 +5,9 @@ const MiniCanvas = () => {
     const canvasRef = useRef(null);
     const contextRef = useRef(null);
     const socketRef = useRef(null);
+    const currentPos = useRef({ x: 0, y: 0 });
 
-    const [ isDrawing, setIsDrawing ] = useState(false);
+    const [isDrawing, setIsDrawing] = useState(false);
 
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -18,16 +19,21 @@ const MiniCanvas = () => {
         ctx.lineCap = 'round';
         
         contextRef.current = ctx;
+        
+        
+        
         socketRef.current = io('http://localhost:5000');
+        socketRef.current.on('drawing', (data) =>{
+            drawLine(data.x0, data.y0, data.x1, data.y1, false);
+        });
     }, []);
 
 
     const startDrawing = ({ nativeEvent }) => {
         const { offsetX, offsetY } = nativeEvent;
 
-        contextRef.current.beginPath();
-
-        contextRef.current.moveTo(offsetX, offsetY);
+        currentPos.current.x = offsetX;
+        currentPos.current.y = offsetY;
 
         setIsDrawing(true);
     };
@@ -39,18 +45,42 @@ const MiniCanvas = () => {
 
 
     const draw = ({ nativeEvent }) => {
-        if(!isDrawing){
-            return ;
+        if (!isDrawing) {
+            return;
         }
-        else{ 
+        else {
             const { offsetX, offsetY } = nativeEvent;
-
-            contextRef.current.lineTo(offsetX, offsetY);
-            contextRef.current.stroke();
+            drawLine(
+                currentPos.current.x,
+                currentPos.current.y,
+                offsetX,
+                offsetY,
+                true
+            );
+            currentPos.current.x = offsetX;
+            currentPos.current.y = offsetY;
         }
     }
 
-    return <canvas ref = {canvasRef} width = {window.innerWidth} height = {window.innerHeight} onMouseDown={startDrawing} onMouseUp={finishDrawing} onMouseMove={draw}/>;
+    const drawLine = (x0, y0, x1, y1, emit) => {
+
+        contextRef.current.beginPath();
+        contextRef.current.moveTo(x0, y0);
+        contextRef.current.lineTo(x1, y1);
+        contextRef.current.stroke();
+        contextRef.current.closePath();
+
+        if (!emit) return;
+
+        socketRef.current.emit('drawing', {
+            x0, y0, x1, y1
+        });
+    };
+
+
+
+
+    return <canvas ref={canvasRef} width={window.innerWidth} height={window.innerHeight} onMouseDown={startDrawing} onMouseUp={finishDrawing} onMouseMove={draw} />;
 }
 
 
