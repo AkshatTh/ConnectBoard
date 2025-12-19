@@ -5,7 +5,7 @@ const PORT = 5000;
 
 const app = express();
 const server = http.createServer(app);
-
+let history  = []
 const io = new Server( server, {
     cors : {
         origin : 'http://localhost:3000',
@@ -17,7 +17,11 @@ const io = new Server( server, {
 io.on('connection' , (socket) => {
     console.log( "A user connected: ", socket.id );
 
+    socket.emit('load history', history);
+
     socket.on('drawing', (data) => {
+        history.push(data);
+
         socket.broadcast.emit('drawing', data);
     });
 });

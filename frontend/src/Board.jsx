@@ -23,6 +23,12 @@ const MiniCanvas = () => {
         
         
         socketRef.current = io('http://localhost:5000');
+        socketRef.current.on('load history', (history) => {
+            history.forEach((item) => {
+                drawLine(item.x0,item.y0,item.x1,item.y1,false);
+            });
+        });
+        
         socketRef.current.on('drawing', (data) =>{
             drawLine(data.x0, data.y0, data.x1, data.y1, false);
         });
