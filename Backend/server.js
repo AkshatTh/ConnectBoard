@@ -14,15 +14,20 @@ const io = new Server( server, {
 });
 
 
-io.on('connection' , (socket) => {
+io.on('connection' , (socket)   => {
     console.log( "A user connected: ", socket.id );
 
-    socket.emit('load history', history);
+    socket.emit('load-history', history);
 
     socket.on('drawing', (data) => {
         history.push(data);
 
         socket.broadcast.emit('drawing', data);
+    });
+
+    socket.on('clear', () => {
+        history= [];
+        io.emit('clear');
     });
 });
 
