@@ -63,7 +63,7 @@ io.on('connection' , (socket)   => {
         }
     })
 
-    socket.on('clear', () => {
+    socket.on('clear', async () => {
         try{
 
             await Stroke.deleteMany({ roomId: 'default-room'});
