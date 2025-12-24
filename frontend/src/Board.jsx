@@ -22,7 +22,7 @@ const MiniCanvas = () => {
 
 
 
-        socketRef.current = io('http://localhost:5000');
+        socketRef.current = io('https://connectboard.onrender.com');
         socketRef.current.on('load-history', (history) => {
             history.forEach((item) => {
                 drawLine(item.x0, item.y0, item.x1, item.y1, item.color, false);
