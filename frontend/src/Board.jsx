@@ -41,7 +41,7 @@ const MiniCanvas = () => {
                     ctx.moveTo(firstPoint.x, firstPoint.y);
                     
                     stroke.points.forEach((points) =>{
-                        ctx.lineTo(point.x, point.y);
+                        ctx.lineTo(points.x, points.y);
                     });
 
                     ctx.stroke();
