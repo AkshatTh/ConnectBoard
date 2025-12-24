@@ -25,7 +25,7 @@ const MiniCanvas = () => {
 
         socketRef.current = io('https://connectboard.onrender.com');
 
-        socketRef.current.emit('join_room', 'default-room');
+        socketRef.current.emit('join-room', 'default-room');
 
         socketRef.current.on('load-history', (history) => {
             const ctx = canvas.getContext('2d');
