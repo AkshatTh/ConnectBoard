@@ -6,6 +6,7 @@ const MiniCanvas = () => {
     const contextRef = useRef(null);
     const socketRef = useRef(null);
     const currentPos = useRef({ x: 0, y: 0 });
+    const [currentStroke, setCurrentStroke] = useState([]);
     const [color, setColor] = useState('black');
     const [isDrawing, setIsDrawing] = useState(false);
 
@@ -42,37 +43,78 @@ const MiniCanvas = () => {
     }, []);
 
 
-    const startDrawing = ({ nativeEvent }) => {
-        const { offsetX, offsetY } = nativeEvent;
 
-        currentPos.current.x = offsetX;
-        currentPos.current.y = offsetY;
+    const getClientOffset = (event) => {
+        
+        const { offsetLeft, offsetTop } = event.target;
 
-        setIsDrawing(true);
+        if(event.touches) {
+            return {
+                x: event.touches[0].clientX - offsetLeft,
+                y: event.touches[0].clientY - offsetTop,
+            };
+        }
+
+        else {
+            return {
+                x: event.nativeEvent.offsetX,
+                y: event.nativeEvent.offsetY,
+            };
+        }
     };
 
-    const finishDrawing = () => {
-        setIsDrawing(false);
-        contextRef.current.closePath();
-    }
 
+    const startDrawing = (e) => {
+        const { x , y } = getClientOffset(e);
 
-    const draw = ({ nativeEvent }) => {
+        currentPos.current = { x, y };
+
+        setIsDrawing(true);
+
+        setCurrentStroke([{ x, y }]);
+    };
+    
+    
+    const draw = (e) => {
         if (!isDrawing) {
             return;
         }
         else {
-            const { offsetX, offsetY } = nativeEvent;
+            const { x, y } = getClientOffset(e);
             drawLine(
                 currentPos.current.x,
                 currentPos.current.y,
-                offsetX,
-                offsetY,
+                x,
+                y,
                 color,
                 true
             );
-            currentPos.current.x = offsetX;
-            currentPos.current.y = offsetY;
+            
+            setCurrentStroke((prev) => [...prev, {x, y}]);
+            
+            currentPos.current = { x, y };
+        }
+    }
+    
+    const finishDrawing = () => {
+        if (!isDrawing) return;
+        else {  
+            setIsDrawing(false);    
+            contextRef.current.closePath();
+            
+            if(currentStroke.length > 0) {
+                const strokeData = {
+                    roomId: 'default-room',
+                    options: {
+                        strokeColor: color,
+                        lineWidth : 5
+                    },
+                    points : currentStroke
+                }
+
+                socketRef.current.emit('save-stroke', strokeData);
+            }
+            setCurrentStroke([]);
         }
     }
 
@@ -114,9 +156,16 @@ const MiniCanvas = () => {
                 ref={canvasRef}
                 width={window.innerWidth}
                 height={window.innerHeight}
+
+                style={{ touchAction:'none' }}
+
                 onMouseDown={startDrawing}
                 onMouseUp={finishDrawing}
                 onMouseMove={draw}
+                
+                onTouchStart={startDrawing}
+                onTouchEnd={finishDrawing}
+                onTouchMove={draw}
             />
         </div>
     );
