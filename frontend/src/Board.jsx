@@ -26,11 +26,30 @@ const MiniCanvas = () => {
         socketRef.current = io('https://connectboard.onrender.com');
 
         socketRef.current.emit('join_room', 'default-room');
-        
+
         socketRef.current.on('load-history', (history) => {
-            history.forEach((item) => {
-                drawLine(item.x0, item.y0, item.x1, item.y1, item.color, false);
+            const ctx = canvas.getContext('2d');
+
+            history.forEach((stroke) =>{
+                ctx.strokeStyle = stroke.options.strokeColor;
+                ctx.lineWidth = stroke.options.lineWidth;
+
+                ctx.beginPath();
+
+                const firstPoint = stroke.points[0];
+                if(firstPoint){
+                    ctx.moveTo(firstPoint.x, firstPoint.y);
+                    
+                    stroke.points.forEach((points){
+                        ctx.lineTo(point.x, point.y);
+                    });
+
+                    ctx.stroke();
+                    ctx.closePath();
+                }
             });
+
+            ctx.strokeStyle = color;
         });
         
         socketRef.current.on('drawing', (data) => {
