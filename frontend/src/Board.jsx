@@ -24,6 +24,9 @@ const MiniCanvas = () => {
 
 
         socketRef.current = io('https://connectboard.onrender.com');
+
+        socketRef.current.emit('join_room', 'default-room');
+        
         socketRef.current.on('load-history', (history) => {
             history.forEach((item) => {
                 drawLine(item.x0, item.y0, item.x1, item.y1, item.color, false);

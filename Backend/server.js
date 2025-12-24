@@ -1,11 +1,26 @@
+require('dotenv').config();
 const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io')
+const mongoose = require('mongoose');
 const PORT = process.env.PORT || 5000;
+const cors = require('cors');
+const Stroke = require ('./models/Stroke');
+
+
 
 const app = express();
+app.use(cors());
+
 const server = http.createServer(app);
-let history  = []
+
+const MONGO_URI = process.env.MONGO_URI
+
+mongoose.connect(MONGO_URI)
+    .then(() => console.log("mongoDb connected!"))
+    .catch((err) => console.error("mongo error: ", err));
+
+
 const io = new Server( server, {
     cors : {
         origin : '*',
@@ -17,16 +32,39 @@ const io = new Server( server, {
 io.on('connection' , (socket)   => {
     console.log( "A user connected: ", socket.id );
 
-    socket.emit('load-history', history);
+    socket.on('join-room',  async(roomId) =>{
+        socket.join(roomId);
+        console.log(`USer joined Room: ${roomId}`);
+
+        try {
+            const history = await Stroke.find({ "roomId": roomId });
+            socket.emit('load-history', history);
+        } catch(err) {console.error("Loading history error :", err);}
+
+    });
 
     socket.on('drawing', (data) => {
-        history.push(data);
-
         socket.broadcast.emit('drawing', data);
     });
 
+    socket.on('save-stroke', async (data) =>{
+        try{
+            const newStroke = new Stroke({
+                roomId: data.roomId,
+                options: data.options,
+                points: data.points
+            });
+
+            await newStroke.save()
+            console.log("saved Stroke!")
+        }
+        catch (err) {
+            console.error("Error: ", err);
+        }
+    })
+
     socket.on('clear', () => {
-        history= [];
+        Stroke.deleteMany({ roomId: 'default-room'})
         io.emit('clear');
     });
 });
