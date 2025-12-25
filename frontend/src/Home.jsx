@@ -16,6 +16,11 @@ const Home = () => {
         navigate(`/room/public-global-room`);
     }
 
+    const joinRoom = () => {
+        if (roomId.trim()) {
+            navigate(`/room/${roomId}`);
+        }
+    };
 
 
     return (
