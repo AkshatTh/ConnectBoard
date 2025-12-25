@@ -63,13 +63,14 @@ io.on('connection' , (socket)   => {
         }
     })
 
-    socket.on('clear', async () => {
+    socket.on('clear', async (roomId) => {
         try{
 
-            await Stroke.deleteMany({ roomId: {roomId} });
+            await Stroke.deleteMany({ roomId: roomId });
             console.log("cleared history!");
 
-            io.emit('clear');
+            io.to(roomId).emit('clear');
+            
         } catch(err){console.error("failed to clear history: ", err);}
     });
 });

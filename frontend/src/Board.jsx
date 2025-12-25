@@ -172,7 +172,7 @@ const MiniCanvas = () => {
                 <button onClick={() => setColor('green')}>Green</button>
                 <button onClick={() => setColor('blue')}>Blue</button>
                 <button onClick={() => setColor('white')}>Eraser</button>
-                <button onClick={() => socketRef.current.emit('clear')}>Clear Board</button>
+                <button onClick={() => socketRef.current.emit('clear', roomId)}>Clear Board</button>
             </div>
 
 
