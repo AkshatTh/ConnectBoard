@@ -128,7 +128,7 @@ const MiniCanvas = () => {
             
             if(currentStroke.length > 0) {
                 const strokeData = {
-                    roomId: 'default-room',
+                    roomId: roomId,
                     options: {
                         strokeColor: color,
                         lineWidth : 5
