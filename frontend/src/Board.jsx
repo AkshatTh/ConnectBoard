@@ -1,7 +1,9 @@
 import { io } from 'socket.io-client';
 import React, { useRef, useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
 
 const MiniCanvas = () => {
+    const { room id } = useParams();
     const canvasRef = useRef(null);
     const contextRef = useRef(null);
     const socketRef = useRef(null);
@@ -25,7 +27,7 @@ const MiniCanvas = () => {
 
         socketRef.current = io('https://connectboard.onrender.com');
 
-        socketRef.current.emit('join-room', 'default-room');
+        socketRef.current.emit('join-room', roomId);
 
         socketRef.current.on('load-history', (history) => {
             const ctx = canvas.getContext('2d');
