@@ -32,7 +32,9 @@ const io = new Server( server, {
 io.on('connection' , (socket)   => {
     console.log( "A user connected: ", socket.id );
 
-    socket.on('join-room',  async(roomId) =>{
+    socket.on('join-room',  async (roomId) =>{
+        if(!roomId) return;
+
         socket.join(roomId);
         console.log(`USer joined Room: ${roomId}`);
 
@@ -46,7 +48,7 @@ io.on('connection' , (socket)   => {
     socket.on('drawing', (data) => {
 
         if(data.roomId) {
-            socket.to(roomId).emit('drawing', data);
+            socket.to(data.roomId).emit('drawing', data);
         }
         });
 
@@ -67,6 +69,9 @@ io.on('connection' , (socket)   => {
     })
 
     socket.on('clear', async (roomId) => {
+        if(!roomId) return;
+
+
         try{
 
             await Stroke.deleteMany({ roomId: roomId });

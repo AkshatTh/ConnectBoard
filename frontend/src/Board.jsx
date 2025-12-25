@@ -14,24 +14,23 @@ const MiniCanvas = () => {
 
     useEffect(() => {
         const canvas = canvasRef.current;
-
         const ctx = canvas.getContext('2d');
 
         ctx.strokeStyle = 'blue';
         ctx.lineWidth = 5;
         ctx.lineCap = 'round';
-
         contextRef.current = ctx;
 
 
 
         socketRef.current = io('https://connectboard.onrender.com');
 
-        socketRef.current.emit('join-room', roomId);
+        if(roomId){
+            socketRef.current.emit('join-room', roomId);
+        }
 
         socketRef.current.on('load-history', (history) => {
             const ctx = canvas.getContext('2d');
-
             history.forEach((stroke) =>{
                 ctx.strokeStyle = stroke.options.strokeColor;
                 ctx.lineWidth = stroke.options.lineWidth;
@@ -63,8 +62,14 @@ const MiniCanvas = () => {
             const canvas = canvasRef.current;
             const ctx = canvas.getContext('2d');
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            setCurrentStroke([]);
         })
-    }, []);
+
+        return() => {
+            socketRef.current.disconnect();
+        }
+    }, [roomId]);
 
 
 
