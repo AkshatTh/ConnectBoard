@@ -3,7 +3,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
 const MiniCanvas = () => {
-    const { room id } = useParams();
+    const { roomId } = useParams();
     const canvasRef = useRef(null);
     const contextRef = useRef(null);
     const socketRef = useRef(null);
