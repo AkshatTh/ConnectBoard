@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import MiniCanvas from './MiniCanvas';
+import MiniCanvas from './Board';
 import Home from './Home';
 
 const App = () => {
@@ -8,7 +8,7 @@ const App = () => {
         <Router>
             <Routes>
                 <Route path="/" element={<Home />} />
-                <Route path="/room/:roomId" element={<MiniCanvas />} />
+                <Route path="/room/:roomId" element={<Board />} />
             </Routes>
         </Router>
     );
