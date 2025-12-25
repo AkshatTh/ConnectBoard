@@ -44,8 +44,11 @@ io.on('connection' , (socket)   => {
     });
 
     socket.on('drawing', (data) => {
-        socket.broadcast.emit('drawing', data);
-    });
+
+        if(data.roomId) {
+            socket.to(roomId).emit('drawing', data);
+        }
+        });
 
     socket.on('save-stroke', async (data) =>{
         try{
@@ -70,7 +73,7 @@ io.on('connection' , (socket)   => {
             console.log("cleared history!");
 
             io.to(roomId).emit('clear');
-            
+
         } catch(err){console.error("failed to clear history: ", err);}
     });
 });

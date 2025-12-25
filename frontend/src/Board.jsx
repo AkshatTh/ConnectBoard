@@ -157,7 +157,8 @@ const MiniCanvas = () => {
 
         socketRef.current.emit('drawing', {
             x0, y0, x1, y1,
-            color: strokeColor
+            color: strokeColor,
+            roomId
         });
     };
 
